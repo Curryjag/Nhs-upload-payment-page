@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm & Proceed – NHS International</title>
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f4f4;
+      padding: 0;
+      margin: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #011a44;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .button {
+      background: #005EB8;
+      color: white;
+      padding: 12px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-weight: bold;
+    }
+    .logo {
+      display: block;
+      margin: 0 auto 20px;
+      height: 60px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="https://i.imgur.com/z4C51ao.jpeg" alt="NHS Logo" class="logo">
+    <h1>Confirm & Proceed</h1>
+    <form id="confirmForm">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" required />
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" required />
+
+      <label for="payment_method">Select Payment Method</label>
+      <select id="payment_method" name="payment_method" required>
+        <option value="">Choose one</option>
+        <option value="PayPal">PayPal</option>
+        <option value="Bank Transfer">Bank Transfer</option>
+      </select>
+
+      <label for="document1">Passport Bio Page</label>
+      <input type="file" id="document1" name="document1" required />
+
+      <label for="document2">Professional Qualification or Degree Certificate</label>
+      <input type="file" id="document2" name="document2" required />
+
+      <button type="submit" class="button">Submit Documents & Confirm</button>
+    </form>
+  </div>
+
+  <script>
+    (function () {
+      emailjs.init("16bzzvb89Oc5FtMgH");
+    })();
+
+    document.getElementById("confirmForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const form = e.target;
+      const name = form.name.value;
+      const email = form.email.value;
+      const method = form.payment_method.value;
+
+      const uploads = [];
+      const files = [form.document1.files[0], form.document2.files[0]];
+
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("upload_preset", "unsigned_preset");
+        const res = await fetch("https://api.cloudinary.com/v1_1/do9yjpizs/auto/upload", {
+          method: "POST",
+          body: fd
+        });
+        const data = await res.json();
+        uploads.push(data.secure_url);
+      }
+
+      const templateParams = {
+        name,
+        email,
+        payment_method: method,
+        document_1: uploads[0],
+        document_2: uploads[1]
+      };
+
+      await emailjs.send("service_le7bi2e", "template_cklte59", templateParams);
+      alert("Thank you. Your submission has been received.");
+      form.reset();
+    });
+  </script>
+</body>
+</html>
